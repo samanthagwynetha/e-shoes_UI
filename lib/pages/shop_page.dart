@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../components/shoe_tile.dart';
+import '../models/cart.dart';
+import '../models/shoe.dart';
 
 class ShopPage extends StatefulWidget {
   const ShopPage({super.key});
@@ -8,9 +12,24 @@ class ShopPage extends StatefulWidget {
 }
 
 class _ShopPageState extends State<ShopPage> {
+
+  //add shoe to cart
+  void addShoeToCart(Shoe shoe){
+    Provider.of<Cart>(context, listen: false).addItemToCart(shoe);
+
+    //alert the user, shoe successfully added
+    showDialog(
+      context: context, 
+      builder: (context) => AlertDialog(
+        title: Text('Successfully added!'),
+        content: Text('Check your cart'),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Consumer<Cart>(builder: (context, value, child) => Column(
       children: [
       //Search bar
       Container(
@@ -47,9 +66,10 @@ class _ShopPageState extends State<ShopPage> {
       
       //hot picks
       Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.symmetric(horizontal: 25.0),
         child: Row (
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: const [
             Text(
               'Hot Picks 🔥',
@@ -64,8 +84,36 @@ class _ShopPageState extends State<ShopPage> {
               ),
           ],
         ),
-      )
+      ),
+
+      const SizedBox(height: 10),
+
+      // list of shoes for sale
+      Expanded(
+        child: ListView.builder(
+          itemCount: 4,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, index) {
+            //get a shoe from shop list
+            Shoe shoe = value.getShoeList()[index];
+
+            // return shoe
+            return ShoeTile(
+              shoe: shoe,
+              onTap: () => addShoeToCart(shoe),
+            );
+          },
+        ),
+      ),
+
+        const Padding(
+          padding: EdgeInsets.only(top: 25.0, left: 25, right: 25),
+          child: Divider(
+            color: Colors.white,
+          ),
+        ),
       ],
+    ),
     );
   }
 }
